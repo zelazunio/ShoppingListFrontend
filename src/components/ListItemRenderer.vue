@@ -1,14 +1,14 @@
 <template>
   <b-container fluid class="pt-1 pb-1">
     <b-row>
-      <b-col class="col-xs-12 col-sm-12 col-md-9 col-lg-10 col-xl-10">
+      <b-col class="col-12 col-sm-12 col-md-9 col-lg-10 col-xl-10">
         <b-form-input
           :value="listItem.item"
           type="text"
           :disabled="true"
         />
       </b-col>
-      <b-col class="col-xs-12 col-sm-12 col-md-3 col-lg-2 col-xl-2">
+      <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2 buttonCellTopPadding">
         <b-btn pill :variant="listItem.done ? 'success' : 'primary'" @click.prevent="markDone" :disabled="$attrs.disabled || listItem.done">
           <b-icon-check></b-icon-check>
         </b-btn>
@@ -48,5 +48,12 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="sass" scoped>
+@import "node_modules/bootstrap/scss/_functions.scss"
+@import "node_modules/bootstrap/scss/_variables.scss"
+@import "node_modules/bootstrap/scss/mixins/_breakpoints.scss"
+
+@include media-breakpoint-down(sm)
+  .buttonCellTopPadding
+    padding-top: 4px
 </style>

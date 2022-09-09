@@ -1,13 +1,13 @@
 <template>
   <div id="app">
-    <b-container class="h-100 d-flex justify-content-center">
+    <b-container class="h-100 d-flex justify-content-center p-0">
       <b-row
         align-v="center"
-        class="h-75 align-self-center w-100 contentContainer"
+        class="align-self-center w-100 contentContainerBackground contentContainerBorders contentContainerHeight"
       >
         <b-col class="h-100 pt-2 pb-2 d-flex flex-column">
           <b-row class="pl-4 pr-2 pt-1 pb-1">
-            <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2">
+            <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2 ">
               <b-form-checkbox
                 id="doneCheckbox"
                 v-model="filterNotDoneOnly"
@@ -23,7 +23,7 @@
               class="
                 d-flex
                 flex-nowrap
-                col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5
+                col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 pt-1
               "
             >
               <filter-input
@@ -44,7 +44,7 @@
               class="
                 d-flex
                 flex-nowrap
-                col-12 col-sm-12 col-md-4 col-lg-5 col-xl-5
+                col-12 col-sm-12 col-md-4 col-lg-5 col-xl-5 pt-1
               "
             >
               <filter-input
@@ -292,10 +292,8 @@ export default {
   top: 0;
   bottom: 0;
 }
-.contentContainer {
+.contentContainerBackground {
   background-color: rgba(255, 255, 255, 0.55);
-  border: 10px solid rgba(255, 255, 255, 0.6);
-  border-radius: 20px;
 }
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -307,50 +305,23 @@ export default {
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 </style>
+<style lang="sass">
+@import "node_modules/bootstrap/scss/_functions.scss"
+@import "node_modules/bootstrap/scss/_variables.scss"
+@import "node_modules/bootstrap/scss/mixins/_breakpoints.scss"
 
+.contentContainerBorders 
+  border: 10px solid rgba(255, 255, 255, 0.6)
+  border-radius: 20px
 
+.contentContainerHeight
+  height: 75% !important
 
+@include media-breakpoint-only(xs)    
+  .contentContainerBorders 
+    border: none
+    border-radius: 0
 
-/*  mounted() {
-  /*var data = JSON.stringify({
-    collection: "collectionShopingList",
-    database: "databaseShopingList",
-    dataSource: "Cluster0",
-    document: {
-      category: "spożywcze",
-      text: "Banany",
-      done: "false",
-    },
-  });*/
-/*
-let getData = JSON.stringify({
-collection: "collectionShopingList",
-    database: "databaseShopingList",
-    dataSource: "Cluster0",
-    filter:{category:  'gospodarstwo domowe'}
-})
-
-  fetch(`${process.env.VUE_APP_MONGODB_BASE_URL}action/find`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': 'FK2qo7GKzrRaqJnbVyP6fzGZxj2eek2FHzZx2G9mHUsG6qVjlbonbNUNR5R3dmh7',
-    },
-    body: getData
-  })
-  /*fetch(process.env.VUE_APP_MONGODB_BASE_URL,/action/insertOne
-{
-method: 'POST',
-headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Request-Headers': '*',
-    'api-key': 'FK2qo7GKzrRaqJnbVyP6fzGZxj2eek2FHzZx2G9mHUsG6qVjlbonbNUNR5R3dmh7',
-  },
-body: data
-})
-  .then(res=>(res.json()))
-  .then(data=>{console.log(data)})
-  .catch(e=>{console.log('Error');console.log(e)})
-
-},*/
+  .contentContainerHeight
+    height: 100% !important
+</style>
