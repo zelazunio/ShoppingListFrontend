@@ -1,12 +1,7 @@
 <template>
-  <b-container fluid class="p-3 d-flex">
-    <b-row class="flex-grow-1">
-      <b-col
-        class="col-12 col-sm-12 col-md-8 col-lg-4 col-xl-4 p-1"
-        order-md="1"
-        order-lg="1"
-        order-xl="1"
-      >
+  <b-container fluid class="d-flex">
+    <b-row class="flex-grow-1 d-flex flex-column p-0">
+      <b-col class="pl-0 pr-0" style="min-height: 5rem">
         <b-form-input
           v-model="listItem.item"
           type="text"
@@ -14,16 +9,11 @@
           :placeholder="textPlaceholder"
           :state="itemState"
         />
-        <b-form-invalid-feedback id="inputItem"
+        <b-form-invalid-feedback id="inputItem" class="p-0 m-0"
           >Enter at least 3 letters</b-form-invalid-feedback
         >
       </b-col>
-      <b-col
-        class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 p-1"
-        order-md="3"
-        order-lg="1"
-        order-xl="1"
-      >
+      <b-col class="p-0" style="min-height: 5rem">
         <b-row class="d-flex flex-nowrap">
           <b-col class="flex-grow-1">
             <b-form-input
@@ -53,17 +43,7 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col
-        class="
-          col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3
-          p-1
-          d-flex
-          flex-nowrap
-        "
-        order-md="4"
-        order-lg="1"
-        order-xl="1"
-      >
+      <b-col class="p-0" style="min-height: 5rem">
         <b-row class="d-flex flex-nowrap">
           <b-col class="flex-grow-1">
             <b-form-input
@@ -92,30 +72,6 @@
             </b-btn>
           </b-col>
         </b-row>
-      </b-col>
-      <b-col
-        class="
-          col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2
-          p-1
-          d-flex
-          justify-content-center
-        "
-        align-self="start"
-        order-md="2"
-        order-lg="1"
-        order-xl="1"
-      >
-        <b-btn
-          pill
-          variant="primary"
-          :disabled="!saveButonEnabled"
-          @click.prevent="$emit('saveItem')"
-        >
-          <b-icon-pencil-fill></b-icon-pencil-fill>
-        </b-btn>
-        <b-btn pill variant="danger" @click.prevent="$emit('discardItem')">
-          <b-icon-backspace-fill></b-icon-backspace-fill>
-        </b-btn>
       </b-col>
     </b-row>
   </b-container>
@@ -151,7 +107,7 @@ export default {
     vendorState() {
       return this.vendorEditionStarted ? this.listItem.vendor.length > 2 : null;
     },
-    saveButonEnabled() {
+    saveButtonEnabled() {
       return this.itemState && this.categoryState && this.vendorState;
     },
   },
@@ -159,14 +115,22 @@ export default {
     "listItem.item": function () {
       if (!this.itemEditionStarted && this.listItem.item.length > 0)
         this.itemEditionStarted = true;
+      this.emitFormValidEvent();
     },
     "listItem.category": function () {
       if (!this.categoryEditionStarted && this.listItem.category.length > 0)
         this.categoryEditionStarted = true;
+      this.emitFormValidEvent();
     },
     "listItem.vendor": function () {
       if (!this.vendorEditionStarted && this.listItem.vendor.length > 0)
         this.vendorEditionStarted = true;
+      this.emitFormValidEvent();
+    },
+  },
+  methods: {
+    emitFormValidEvent() {
+      this.$emit("formValid", this.saveButtonEnabled);
     },
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <b-col class="d-flex flex-nowrap">
+  <b-col class="d-flex flex-nowrap pl-0 pr-0">
     <b-form-input
       :value="value"
       id="input"

@@ -3,11 +3,17 @@
     <b-container class="h-100 d-flex justify-content-center p-0">
       <b-row
         align-v="center"
-        class="align-self-center w-100 contentContainerBackground contentContainerBorders contentContainerHeight"
+        class="
+          align-self-center
+          w-100
+          contentContainerBackground
+          contentContainerBorders
+          contentContainerHeight
+        "
       >
         <b-col class="h-100 pt-2 pb-2 d-flex flex-column">
           <b-row class="pl-4 pr-2 pt-1 pb-1">
-            <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2 ">
+            <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2">
               <b-form-checkbox
                 id="doneCheckbox"
                 v-model="filterNotDoneOnly"
@@ -23,7 +29,8 @@
               class="
                 d-flex
                 flex-nowrap
-                col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 pt-1
+                col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5
+                pt-1
               "
             >
               <filter-input
@@ -44,7 +51,8 @@
               class="
                 d-flex
                 flex-nowrap
-                col-12 col-sm-12 col-md-4 col-lg-5 col-xl-5 pt-1
+                col-12 col-sm-12 col-md-4 col-lg-5 col-xl-5
+                pt-1
               "
             >
               <filter-input
@@ -71,7 +79,6 @@
             <b-row class="flex-grow-1" style="overflow-y: auto">
               <b-col>
                 <list-item-renderer
-                  :disabled="addNewItemVisible"
                   v-for="listItem in listItemsFiltered"
                   :key="listItem._id"
                   :list-item="listItem"
@@ -79,20 +86,7 @@
               </b-col>
             </b-row>
           </b-overlay>
-          <b-row v-if="addNewItemVisible">
-            <b-overlay :show="itemPostPending" variant="transparent" blur="8px">
-              <b-col>
-                <list-item-renderer-editable
-                  :listItem="newItem"
-                  @saveItem="postItem"
-                  @discardItem="addNewItemVisible = false"
-                  :categories="categories"
-                  :vendors="vendors"
-                />
-              </b-col>
-            </b-overlay>
-          </b-row>
-          <b-row v-else>
+          <b-row>
             <b-col>
               <b-row>
                 <b-col class="d-flex justify-content-center">
@@ -112,6 +106,7 @@
         </b-col>
       </b-row>
     </b-container>
+    <!-- Delete Items Dialog -->
     <b-modal
       id="deleteDoneDialog"
       centered
@@ -136,6 +131,50 @@
         <b-btn @click="cancel()" :disabled="itemsDeletePending">Cancel</b-btn>
       </template>
     </b-modal>
+    <!-- Add New Item Dialog -->
+    <b-modal
+      id="addNewItemDialog"
+      centered
+      title="Add new item"
+      header-bg-variant="primary"
+      header-text-variant="light"
+      hide-header-close
+      no-close-on-backdrop
+      no-close-on-esc
+    >
+      <b-row class="p-0">
+        <b-col class="p-0">
+          <b-container fluid class="p-0">
+            <b-overlay :show="itemPostPending" variant="transparent" blur="8px">
+              <b-col>
+                <list-item-renderer-editable
+                  :listItem="newItem"
+                  :categories="categories"
+                  :vendors="vendors"
+                  @formValid="(valid)=>{addItemsSaveButtonEnabled = valid}"
+                />
+              </b-col>
+            </b-overlay>
+          </b-container>
+        </b-col>
+      </b-row>
+      <template #modal-footer="{ cancel }">
+
+        <b-btn
+          style="margin-right: 2em"
+          variant="primary"
+          :disabled="!addItemsSaveButtonEnabled"
+          @click.prevent="postItem"
+        >
+          <b-icon-pencil-fill></b-icon-pencil-fill>
+        </b-btn>
+
+
+        <b-btn @click="cancel()" :disabled="itemPostPending">
+          <b-icon-backspace-fill></b-icon-backspace-fill>
+        </b-btn>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -152,7 +191,6 @@ export default {
     return {
       listItems: [],
       newItem: new ListItem(),
-      addNewItemVisible: false,
       filterNotDoneOnly: true,
       vendorFilter: "",
       categoryFilter: "",
@@ -161,6 +199,7 @@ export default {
       deletingItems: true,
       itemPostPending: false,
       itemsDeletePending: false,
+      addItemsSaveButtonEnabled: false,
     };
   },
   mounted() {
@@ -220,7 +259,7 @@ export default {
     },
     openAddNewItem() {
       this.newItem = new ListItem();
-      this.addNewItemVisible = true;
+      this.$bvModal.show("addNewItemDialog");
     },
     postItem() {
       this.itemPostPending = true;
@@ -237,13 +276,13 @@ export default {
           if (!data.itemAdded) console.log("error adding element");
           else {
             this.getItems();
-            this.addNewItemVisible = false;
+            this.$bvModal.hide("addNewItemDialog");
           }
           this.itemPostPending = false;
         })
         .catch((e) => {
           console.log(e);
-          this.itemPostPending = false;
+          this.$bvModal.hide("addNewItemDialog");
         });
     },
     openDeleteDoneDialog() {
@@ -310,18 +349,24 @@ export default {
 @import "node_modules/bootstrap/scss/_variables.scss"
 @import "node_modules/bootstrap/scss/mixins/_breakpoints.scss"
 
-.contentContainerBorders 
+.contentContainerBorders
   border: 10px solid rgba(255, 255, 255, 0.6)
   border-radius: 20px
 
 .contentContainerHeight
   height: 75% !important
 
-@include media-breakpoint-only(xs)    
-  .contentContainerBorders 
+@include media-breakpoint-only(xs)
+  .contentContainerBorders
     border: none
     border-radius: 0
 
   .contentContainerHeight
     height: 100% !important
+
+.invalid-feedback
+  background: rgba(255,255,255,0.7)
+  border: 1px dotted red
+  padding: 4px
+  margin-top: 0 !important
 </style>
