@@ -62,16 +62,23 @@
               />
             </b-col>
           </b-row>
-          <b-row class="flex-grow-1" style="overflow-y: auto">
-            <b-col>
-              <list-item-renderer
-                :disabled="addNewItemVisible"
-                v-for="listItem in listItemsFiltered"
-                :key="listItem._id"
-                :list-item="listItem"
-              />
-            </b-col>
-          </b-row>
+          <b-overlay
+            :show="listItemsLoading"
+            variant="transparent"
+            blur="8px"
+            class="h-100"
+          >
+            <b-row class="flex-grow-1" style="overflow-y: auto">
+              <b-col>
+                <list-item-renderer
+                  :disabled="addNewItemVisible"
+                  v-for="listItem in listItemsFiltered"
+                  :key="listItem._id"
+                  :list-item="listItem"
+                />
+              </b-col>
+            </b-row>
+          </b-overlay>
           <b-row v-if="addNewItemVisible">
             <b-overlay :show="itemPostPending" variant="transparent" blur="8px">
               <b-col>
@@ -116,7 +123,8 @@
       no-close-on-esc
     >
       <b-overlay :show="itemsDeletePending" variant="transparent" blur="8px">
-        Do you want to delete <b>{{ doneItemsIdsTable.length }}</b> items marked as <b>done</b>?
+        Do you want to delete <b>{{ doneItemsIdsTable.length }}</b> items marked
+        as <b>done</b>?
       </b-overlay>
       <template #modal-footer="{ cancel }">
         <b-btn
@@ -193,7 +201,7 @@ export default {
       );
     },
     doneItemsIdsTable() {
-      return this.listItems.filter(item=>(item.done)).map(item=>(item._id))
+      return this.listItems.filter((item) => item.done).map((item) => item._id);
     },
   },
   methods: {
@@ -247,18 +255,22 @@ export default {
     deleteDoneItems() {
       this.itemsDeletePending = true;
       fetch(`${process.env.VUE_APP_API_URL}/items`, {
-        method: 'delete',
+        method: "delete",
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
-        body: JSON.stringify({ids: this.doneItemsIdsTable})
+        body: JSON.stringify({ ids: this.doneItemsIdsTable }),
       })
-        .then(response=>(response.json()))
-        .then(()=>{this.itemsDeletePending = false;
+        .then((response) => response.json())
+        .then(() => {
+          this.itemsDeletePending = false;
           this.$bvModal.hide("deleteDoneDialog");
           this.getItems();
         })
-        .catch(e=>{console.log(e);this.itemsDeletePending = false})
+        .catch((e) => {
+          console.log(e);
+          this.itemsDeletePending = false;
+        });
     },
   },
 };
