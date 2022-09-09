@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     markDone() {
-      fetch("http://localhost:3000/item", {
+      fetch(`${process.env.VUE_APP_API_URL}/item`, {
         method: "put",
         headers: {
           "Content-type": "application/json; charset=UTF-8",

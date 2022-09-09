@@ -199,7 +199,7 @@ export default {
   methods: {
     getItems() {
       this.listItemsLoading = true;
-      fetch("http://localhost:3000/items")
+      fetch(`${process.env.VUE_APP_API_URL}/items`)
         .then((res) => res.json())
         .then((data) => {
           this.listItems = data;
@@ -210,37 +210,13 @@ export default {
           this.listItemsLoading = false;
         });
     },
-
-    send() {
-      let body = {
-        item: "jeżyki",
-        done: false,
-        categoryId: "630f08ef9f7a7c636e6f65ee",
-        suggestedVendorId: "63105c9cc05d8588de0a6e5e",
-      };
-      fetch("http://localhost:3000/item", {
-        method: "post",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify(body),
-        cache: "default",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.itemAdded) console.log("error adding element");
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
     openAddNewItem() {
       this.newItem = new ListItem();
       this.addNewItemVisible = true;
     },
     postItem() {
       this.itemPostPending = true;
-      fetch("http://localhost:3000/item", {
+      fetch(`${process.env.VUE_APP_API_URL}/item`, {
         method: "post",
         headers: {
           "Content-type": "application/json; charset=UTF-8",
@@ -270,7 +246,7 @@ export default {
     },
     deleteDoneItems() {
       this.itemsDeletePending = true;
-      fetch('http://localhost:3000/items', {
+      fetch(`${process.env.VUE_APP_API_URL}/items`, {
         method: 'delete',
         headers: {
           "Content-type": "application/json; charset=UTF-8",
