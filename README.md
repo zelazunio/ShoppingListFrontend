@@ -1,5 +1,5 @@
 # shopping-list
-
+Shopping list frontend - using Vue, VueBootstrap
 ## Project setup
 ```
 npm install

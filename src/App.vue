@@ -1,19 +1,291 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <b-container class="h-100 d-flex justify-content-center">
+      <b-row
+        align-v="center"
+        class="h-75 align-self-center w-100 contentContainer"
+      >
+        <b-col class="h-100 pt-2 pb-2 d-flex flex-column">
+          <b-row class="pl-4 pr-2 pt-1 pb-1">
+            <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2">
+              <b-form-checkbox
+                id="doneCheckbox"
+                v-model="filterNotDoneOnly"
+                name="doneCheckbox"
+                :value="true"
+                :unchecked-value="false"
+                class="noselect"
+              >
+                <span>Pending only</span>
+              </b-form-checkbox>
+            </b-col>
+            <b-col
+              class="
+                d-flex
+                flex-nowrap
+                col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5
+              "
+            >
+              <filter-input
+                :value="categoryFilter"
+                :options="categories"
+                listName="categoryFilter"
+                placeholder="Categories"
+                :disabled="listItemsLoading"
+                key="categoryFilter"
+                @input="
+                  (p) => {
+                    categoryFilter = p;
+                  }
+                "
+              />
+            </b-col>
+            <b-col
+              class="
+                d-flex
+                flex-nowrap
+                col-12 col-sm-12 col-md-4 col-lg-5 col-xl-5
+              "
+            >
+              <filter-input
+                :value="vendorFilter"
+                :options="vendors"
+                listName="vendorFilter"
+                placeholder="Vendor"
+                :disabled="listItemsLoading"
+                key="vendorFilter"
+                @input="
+                  (p) => {
+                    vendorFilter = p;
+                  }
+                "
+              />
+            </b-col>
+          </b-row>
+          <b-row class="flex-grow-1" style="overflow-y: auto">
+            <b-col>
+              <list-item-renderer
+                :disabled="addNewItemVisible"
+                v-for="listItem in listItemsFiltered"
+                :key="listItem._id"
+                :list-item="listItem"
+              />
+            </b-col>
+          </b-row>
+          <b-row v-if="addNewItemVisible">
+            <b-overlay :show="itemPostPending" variant="transparent" blur="8px">
+              <b-col>
+                <list-item-renderer-editable
+                  :listItem="newItem"
+                  @saveItem="postItem"
+                  @discardItem="addNewItemVisible = false"
+                  :categories="categories"
+                  :vendors="vendors"
+                />
+              </b-col>
+            </b-overlay>
+          </b-row>
+          <b-row v-else>
+            <b-col>
+              <b-row>
+                <b-col class="d-flex justify-content-center">
+                  <b-btn pill variant="success" @click="openAddNewItem">
+                    <b-icon-plus-circle></b-icon-plus-circle>
+                  </b-btn>
+                </b-col>
+                <b-col></b-col>
+                <b-col class="d-flex justify-content-center">
+                  <b-btn pill variant="danger" @click="openDeleteDoneDialog">
+                    <b-icon-trash></b-icon-trash>
+                  </b-btn>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+    </b-container>
+    <b-modal
+      id="deleteDoneDialog"
+      centered
+      title="Confirm action"
+      header-bg-variant="danger"
+      header-text-variant="light"
+      hide-header-close
+      no-close-on-backdrop
+      no-close-on-esc
+    >
+      <b-overlay :show="itemsDeletePending" variant="transparent" blur="8px">
+        Do you want to delete <b>{{ doneItemsIdsTable.length }}</b> items marked as <b>done</b>?
+      </b-overlay>
+      <template #modal-footer="{ cancel }">
+        <b-btn
+          variant="primary"
+          @click="deleteDoneItems"
+          :disabled="itemsDeletePending"
+          >Delete</b-btn
+        >
+        <b-btn @click="cancel()" :disabled="itemsDeletePending">Cancel</b-btn>
+      </template>
+    </b-modal>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ListItemRenderer from "./components/ListItemRenderer";
+import ListItem from "@/classes/ListItem";
+import ListItemRendererEditable from "./components/ListItemRendererEditable";
+import FilterInput from "./components/FilterInput.vue";
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+  components: { ListItemRenderer, ListItemRendererEditable, FilterInput },
+  data() {
+    return {
+      listItems: [],
+      newItem: new ListItem(),
+      addNewItemVisible: false,
+      filterNotDoneOnly: true,
+      vendorFilter: "",
+      categoryFilter: "",
+      listItemsLoading: false,
+      itemsToDelete: null,
+      deletingItems: true,
+      itemPostPending: false,
+      itemsDeletePending: false,
+    };
+  },
+  mounted() {
+    this.getItems();
+  },
+  computed: {
+    listItemsFiltered() {
+      let result = [];
+      result = this.listItems.filter((el) => {
+        let logicalResult = true;
+        logicalResult &= this.filterNotDoneOnly ? !el.done : true;
+        logicalResult &=
+          this.categoryFilter.length > 0
+            ? el.category == this.categoryFilter
+            : true;
+        logicalResult &=
+          this.vendorFilter.length > 0 ? el.vendor == this.vendorFilter : true;
+        return logicalResult;
+      });
+      return result;
+    },
+    categories() {
+      return Array.from(
+        new Set(
+          this.listItems
+            .map((item) => (item.category ? item.category : null))
+            .filter((item) => item)
+        )
+      );
+    },
+    vendors() {
+      return Array.from(
+        new Set(
+          this.listItems
+            .map((item) => (item.vendor ? item.vendor : null))
+            .filter((item) => item)
+        )
+      );
+    },
+    doneItemsIdsTable() {
+      return this.listItems.filter(item=>(item.done)).map(item=>(item._id))
+    },
+  },
+  methods: {
+    getItems() {
+      this.listItemsLoading = true;
+      fetch("http://localhost:3000/items")
+        .then((res) => res.json())
+        .then((data) => {
+          this.listItems = data;
+          this.listItemsLoading = false;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.listItemsLoading = false;
+        });
+    },
+
+    send() {
+      let body = {
+        item: "jeżyki",
+        done: false,
+        categoryId: "630f08ef9f7a7c636e6f65ee",
+        suggestedVendorId: "63105c9cc05d8588de0a6e5e",
+      };
+      fetch("http://localhost:3000/item", {
+        method: "post",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify(body),
+        cache: "default",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.itemAdded) console.log("error adding element");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    openAddNewItem() {
+      this.newItem = new ListItem();
+      this.addNewItemVisible = true;
+    },
+    postItem() {
+      this.itemPostPending = true;
+      fetch("http://localhost:3000/item", {
+        method: "post",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify(this.newItem),
+        cache: "default",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.itemAdded) console.log("error adding element");
+          else {
+            this.getItems();
+            this.addNewItemVisible = false;
+          }
+          this.itemPostPending = false;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.itemPostPending = false;
+        });
+    },
+    openDeleteDoneDialog() {
+      this.itemsToDelete = this.listItems
+        .filter((item) => item.done)
+        .map((item) => item._id);
+      this.$bvModal.show("deleteDoneDialog");
+    },
+    deleteDoneItems() {
+      this.itemsDeletePending = true;
+      fetch('http://localhost:3000/items', {
+        method: 'delete',
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({ids: this.doneItemsIdsTable})
+      })
+        .then(response=>(response.json()))
+        .then(()=>{this.itemsDeletePending = false;
+          this.$bvModal.hide("deleteDoneDialog");
+          this.getItems();
+        })
+        .catch(e=>{console.log(e);this.itemsDeletePending = false})
+    },
+  },
+};
 </script>
 
 <style>
@@ -21,8 +293,76 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  background-image: url("./assets/background.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-color: lightgray;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.contentContainer {
+  background-color: rgba(255, 255, 255, 0.55);
+  border: 10px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+}
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }
 </style>
+
+
+
+
+/*  mounted() {
+  /*var data = JSON.stringify({
+    collection: "collectionShopingList",
+    database: "databaseShopingList",
+    dataSource: "Cluster0",
+    document: {
+      category: "spożywcze",
+      text: "Banany",
+      done: "false",
+    },
+  });*/
+/*
+let getData = JSON.stringify({
+collection: "collectionShopingList",
+    database: "databaseShopingList",
+    dataSource: "Cluster0",
+    filter:{category:  'gospodarstwo domowe'}
+})
+
+  fetch(`${process.env.VUE_APP_MONGODB_BASE_URL}action/find`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Request-Headers': '*',
+      'api-key': 'FK2qo7GKzrRaqJnbVyP6fzGZxj2eek2FHzZx2G9mHUsG6qVjlbonbNUNR5R3dmh7',
+    },
+    body: getData
+  })
+  /*fetch(process.env.VUE_APP_MONGODB_BASE_URL,/action/insertOne
+{
+method: 'POST',
+headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Request-Headers': '*',
+    'api-key': 'FK2qo7GKzrRaqJnbVyP6fzGZxj2eek2FHzZx2G9mHUsG6qVjlbonbNUNR5R3dmh7',
+  },
+body: data
+})
+  .then(res=>(res.json()))
+  .then(data=>{console.log(data)})
+  .catch(e=>{console.log('Error');console.log(e)})
+
+},*/
