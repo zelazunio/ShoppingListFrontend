@@ -36,13 +36,13 @@ export default {
       })
         .then((res) => res.json())
         .then((data) => {
-          if (!data.itemAUpdated) console.log("error updating element");
+          if (!data.itemAUpdated) this.$store.commit('addError', "Error while updating element.")
           else {
            this.listItem.done = true;
           }
         })
-        .catch((e) => {
-          console.log(e);
+        .catch(() => {
+          this.$store.commit('addError', "Error while updating element.")
         });
     },
   },

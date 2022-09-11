@@ -1,6 +1,6 @@
 {
   "name": "shopping-list",
-  "version": "0.1.0-security",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
@@ -10,7 +10,8 @@
   "dependencies": {
     "bootstrap-vue": "^2.22.0",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "vue": "^2.7.10",
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.13",

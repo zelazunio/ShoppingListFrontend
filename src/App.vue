@@ -175,6 +175,7 @@
         </b-btn>
       </template>
     </b-modal>
+    <error-dialog/>
   </div>
 </template>
 
@@ -182,11 +183,12 @@
 import ListItemRenderer from "./components/ListItemRenderer";
 import ListItem from "@/classes/ListItem";
 import ListItemRendererEditable from "./components/ListItemRendererEditable";
-import FilterInput from "./components/FilterInput.vue";
+import FilterInput from "@/components/FilterInput.vue";
+import ErrorDialog from "@/components/ErrorDialog.vue";
 
 export default {
   name: "App",
-  components: { ListItemRenderer, ListItemRendererEditable, FilterInput },
+  components: { ListItemRenderer, ListItemRendererEditable, FilterInput, ErrorDialog },
   data() {
     return {
       listItems: [],
@@ -252,8 +254,8 @@ export default {
           this.listItems = data;
           this.listItemsLoading = false;
         })
-        .catch((e) => {
-          console.log(e);
+        .catch(() => {
+          this.$store.commit('addError', "Couldn't fetch data from database.")
           this.listItemsLoading = false;
         });
     },
@@ -280,8 +282,8 @@ export default {
           }
           this.itemPostPending = false;
         })
-        .catch((e) => {
-          console.log(e);
+        .catch(() => {
+          this.$store.commit('addError', "Couldn't write data to database.")
           this.$bvModal.hide("addNewItemDialog");
         });
     },
@@ -306,8 +308,8 @@ export default {
           this.$bvModal.hide("deleteDoneDialog");
           this.getItems();
         })
-        .catch((e) => {
-          console.log(e);
+        .catch(() => {
+          this.$store.commit('addError', "Couldn't write data to database.")
           this.itemsDeletePending = false;
         });
     },
