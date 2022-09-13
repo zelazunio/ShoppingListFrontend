@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid class="pt-1 pb-1">
+  <b-container fluid class="pt-1 pb-1 pr-0  ">
     <b-row>
       <b-col class="col-12 d-flex flex-nowrap">
         <b-form-input :value="listItem.item" class="mr-2" type="text" :disabled="true" />

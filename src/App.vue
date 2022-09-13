@@ -78,7 +78,7 @@
             style="overflow-y: auto; overflow-x:hidden" id="thisOneOverflows"
           >
             <b-row class="flex-grow-1">
-              <b-col>
+              <b-col> 
                 <list-item-renderer
                   v-for="listItem in listItemsFiltered"
                   :key="listItem._id"
