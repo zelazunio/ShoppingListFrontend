@@ -1,15 +1,15 @@
 <template>
   <b-container fluid class="pt-1 pb-1">
     <b-row>
-      <b-col class="col-12 col-sm-12 col-md-9 col-lg-10 col-xl-10">
-        <b-form-input
-          :value="listItem.item"
-          type="text"
-          :disabled="true"
-        />
-      </b-col>
-      <b-col class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2 buttonCellTopPadding">
-        <b-btn pill :variant="listItem.done ? 'success' : 'primary'" @click.prevent="markDone" :disabled="$attrs.disabled || listItem.done">
+      <b-col class="col-12 d-flex flex-nowrap">
+        <b-form-input :value="listItem.item" class="mr-2" type="text" :disabled="true" />
+        <b-btn
+          pill
+          size="sm"
+          :variant="listItem.done ? 'success' : 'primary'"
+          @click.prevent="markDone"
+          :disabled="$attrs.disabled || listItem.done"
+        >
           <b-icon-check></b-icon-check>
         </b-btn>
       </b-col>
@@ -31,18 +31,19 @@ export default {
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
-        body: JSON.stringify({_id: this.listItem._id, done: true}),
+        body: JSON.stringify({ _id: this.listItem._id, done: true }),
         cache: "default",
       })
         .then((res) => res.json())
         .then((data) => {
-          if (!data.itemAUpdated) this.$store.commit('addError', "Error while updating element.")
+          if (!data.itemAUpdated)
+            this.$store.commit("addError", "Error while updating element.");
           else {
-           this.listItem.done = true;
+            this.listItem.done = true;
           }
         })
         .catch(() => {
-          this.$store.commit('addError', "Error while updating element.")
+          this.$store.commit("addError", "Error while updating element.");
         });
     },
   },
@@ -53,7 +54,9 @@ export default {
 @import "node_modules/bootstrap/scss/_variables.scss"
 @import "node_modules/bootstrap/scss/mixins/_breakpoints.scss"
 
-@include media-breakpoint-down(sm)
-  .buttonCellTopPadding
-    padding-top: 4px
+@include media-breakpoint-only(xs)
+  .buttonSizeXS
+    padding: 0.25rem 0.25rem
+    font-size: 0.875rem
+    border-radius: 20rem !important
 </style>

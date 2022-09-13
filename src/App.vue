@@ -75,8 +75,9 @@
             variant="transparent"
             blur="8px"
             class="h-100"
+            style="overflow-y: auto; overflow-x:hidden" id="thisOneOverflows"
           >
-            <b-row class="flex-grow-1" style="overflow-y: auto">
+            <b-row class="flex-grow-1">
               <b-col>
                 <list-item-renderer
                   v-for="listItem in listItemsFiltered"
@@ -90,13 +91,13 @@
             <b-col>
               <b-row>
                 <b-col class="d-flex justify-content-center">
-                  <b-btn pill variant="success" @click="openAddNewItem">
+                  <b-btn pill size="lg" variant="success" @click="openAddNewItem">
                     <b-icon-plus-circle></b-icon-plus-circle>
                   </b-btn>
                 </b-col>
                 <b-col></b-col>
                 <b-col class="d-flex justify-content-center">
-                  <b-btn pill variant="danger" @click="openDeleteDoneDialog">
+                  <b-btn pill size="lg" variant="danger" @click="openDeleteDoneDialog">
                     <b-icon-trash></b-icon-trash>
                   </b-btn>
                 </b-col>
