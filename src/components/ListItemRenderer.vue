@@ -7,8 +7,8 @@
           pill
           size="sm"
           :variant="listItem.done ? 'success' : 'primary'"
-          @click.prevent="markDone"
-          :disabled="$attrs.disabled || listItem.done"
+          @click.prevent="$emit('changedDoneState', listItem)"
+          :disabled="$attrs.disabled"
         >
           <b-icon-check></b-icon-check>
         </b-btn>
@@ -23,29 +23,6 @@ export default {
   props: {
     listItem: { type: Object, required: true },
     textPlaceholder: { type: String, default: "Item" },
-  },
-  methods: {
-    markDone() {
-      fetch(`${process.env.VUE_APP_API_URL}/item`, {
-        method: "put",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify({ _id: this.listItem._id, done: true }),
-        cache: "default",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.itemAUpdated)
-            this.$store.commit("addError", "Error while updating element.");
-          else {
-            this.listItem.done = true;
-          }
-        })
-        .catch(() => {
-          this.$store.commit("addError", "Error while updating element.");
-        });
-    },
   },
 };
 </script>

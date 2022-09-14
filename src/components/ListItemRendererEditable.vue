@@ -1,17 +1,19 @@
 <template>
   <b-container fluid class="d-flex">
     <b-row class="flex-grow-1 d-flex flex-column p-0">
-      <b-col class="pl-0 pr-0" style="min-height: 5rem">
+      <b-col class="pl-0 pr-0" style="min-height: 6rem">
         <b-form-input
           v-model="listItem.item"
           type="text"
           id="inputItem"
           :placeholder="textPlaceholder"
           :state="itemState"
+          autofocus
         />
         <b-form-invalid-feedback id="inputItem" class="p-0 m-0"
           >Enter at least 3 letters</b-form-invalid-feedback
         >
+        <b-form-text id="input-live-help">Item or items split with coma sign.</b-form-text>
       </b-col>
       <b-col class="p-0" style="min-height: 5rem">
         <b-row class="d-flex flex-nowrap">

@@ -75,14 +75,17 @@
             variant="transparent"
             blur="8px"
             class="h-100"
-            style="overflow-y: auto; overflow-x:hidden" id="thisOneOverflows"
+            style="overflow-y: auto; overflow-x: hidden"
+            id="thisOneOverflows"
           >
             <b-row class="flex-grow-1">
-              <b-col> 
+              <b-col>
                 <list-item-renderer
                   v-for="listItem in listItemsFiltered"
                   :key="listItem._id"
                   :list-item="listItem"
+                  :disabled="itemPutPending"
+                  @changedDoneState="putItem"
                 />
               </b-col>
             </b-row>
@@ -91,13 +94,23 @@
             <b-col>
               <b-row>
                 <b-col class="d-flex justify-content-center">
-                  <b-btn pill size="lg" variant="success" @click="openAddNewItem">
+                  <b-btn
+                    pill
+                    size="lg"
+                    variant="success"
+                    @click="openAddNewItem"
+                  >
                     <b-icon-plus-circle></b-icon-plus-circle>
                   </b-btn>
                 </b-col>
                 <b-col></b-col>
                 <b-col class="d-flex justify-content-center">
-                  <b-btn pill size="lg" variant="danger" @click="openDeleteDoneDialog">
+                  <b-btn
+                    pill
+                    size="lg"
+                    variant="danger"
+                    @click="openDeleteDoneDialog"
+                  >
                     <b-icon-trash></b-icon-trash>
                   </b-btn>
                 </b-col>
@@ -152,7 +165,11 @@
                   :listItem="newItem"
                   :categories="categories"
                   :vendors="vendors"
-                  @formValid="(valid)=>{addItemsSaveButtonEnabled = valid}"
+                  @formValid="
+                    (valid) => {
+                      addItemsSaveButtonEnabled = valid;
+                    }
+                  "
                 />
               </b-col>
             </b-overlay>
@@ -160,23 +177,21 @@
         </b-col>
       </b-row>
       <template #modal-footer="{ cancel }">
-
         <b-btn
           style="margin-right: 2em"
           variant="primary"
           :disabled="!addItemsSaveButtonEnabled"
-          @click.prevent="postItem"
+          @click.prevent="postItems"
         >
           <b-icon-pencil-fill></b-icon-pencil-fill>
         </b-btn>
-
 
         <b-btn @click="cancel()" :disabled="itemPostPending">
           <b-icon-backspace-fill></b-icon-backspace-fill>
         </b-btn>
       </template>
     </b-modal>
-    <error-dialog/>
+    <error-dialog />
   </div>
 </template>
 
@@ -189,7 +204,12 @@ import ErrorDialog from "@/components/ErrorDialog.vue";
 
 export default {
   name: "App",
-  components: { ListItemRenderer, ListItemRendererEditable, FilterInput, ErrorDialog },
+  components: {
+    ListItemRenderer,
+    ListItemRendererEditable,
+    FilterInput,
+    ErrorDialog,
+  },
   data() {
     return {
       listItems: [],
@@ -201,6 +221,7 @@ export default {
       itemsToDelete: null,
       deletingItems: true,
       itemPostPending: false,
+      itemPutPending: false,
       itemsDeletePending: false,
       addItemsSaveButtonEnabled: false,
     };
@@ -211,17 +232,26 @@ export default {
   computed: {
     listItemsFiltered() {
       let result = [];
-      result = this.listItems.filter((el) => {
-        let logicalResult = true;
-        logicalResult &= this.filterNotDoneOnly ? !el.done : true;
-        logicalResult &=
-          this.categoryFilter.length > 0
-            ? el.category == this.categoryFilter
-            : true;
-        logicalResult &=
-          this.vendorFilter.length > 0 ? el.vendor == this.vendorFilter : true;
-        return logicalResult;
-      });
+      result = this.listItems
+        .filter((el) => {
+          let logicalResult = true;
+          logicalResult &= this.filterNotDoneOnly ? !el.done : true;
+          logicalResult &=
+            this.categoryFilter.length > 0
+              ? el.category == this.categoryFilter
+              : true;
+          logicalResult &=
+            this.vendorFilter.length > 0
+              ? el.vendor == this.vendorFilter
+              : true;
+          return logicalResult;
+        })
+        .sort(el => {
+          let result = 0;
+          if (el.done) result = -1;
+          else result = 1;
+          return result;
+        });
       return result;
     },
     categories() {
@@ -256,7 +286,7 @@ export default {
           this.listItemsLoading = false;
         })
         .catch(() => {
-          this.$store.commit('addError', "Couldn't fetch data from database.")
+          this.$store.commit("addError", "Couldn't fetch data from database.");
           this.listItemsLoading = false;
         });
     },
@@ -265,18 +295,28 @@ export default {
       this.$bvModal.show("addNewItemDialog");
     },
     postItem() {
+      let object = { ...this.newItem };
+      this.apiPost("/item", "itemAdded", object);
+    },
+    postItems() {
+      let object = { ...this.newItem };
+      delete object.item;
+      object.items = this.newItem.item;
+      this.apiPost("/items", "itemsAdded", object);
+    },
+    apiPost(url, responseKeyword, object) {
       this.itemPostPending = true;
-      fetch(`${process.env.VUE_APP_API_URL}/item`, {
+      fetch(`${process.env.VUE_APP_API_URL}${url}`, {
         method: "post",
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
-        body: JSON.stringify(this.newItem),
+        body: JSON.stringify(object),
         cache: "default",
       })
         .then((res) => res.json())
         .then((data) => {
-          if (!data.itemAdded) console.log("error adding element");
+          if (!data[responseKeyword]) console.log("error adding element");
           else {
             this.getItems();
             this.$bvModal.hide("addNewItemDialog");
@@ -284,7 +324,7 @@ export default {
           this.itemPostPending = false;
         })
         .catch(() => {
-          this.$store.commit('addError', "Couldn't write data to database.")
+          this.$store.commit("addError", "Couldn't write data to database.");
           this.$bvModal.hide("addNewItemDialog");
         });
     },
@@ -310,8 +350,32 @@ export default {
           this.getItems();
         })
         .catch(() => {
-          this.$store.commit('addError', "Couldn't write data to database.")
+          this.$store.commit("addError", "Couldn't write data to database.");
           this.itemsDeletePending = false;
+        });
+    },
+    putItem(item) {
+      this.itemPutPending = true;
+      fetch(`${process.env.VUE_APP_API_URL}/item`, {
+        method: "put",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({ _id: item._id, done: !item.done }),
+        cache: "default",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.itemUpdated)
+            this.$store.commit("addError", "Error while updating element.");
+          else {
+            item.done = !item.done;
+          }
+          this.itemPutPending = false;
+        })
+        .catch(() => {
+          this.$store.commit("addError", "Error while updating element.");
+          this.itemPutPending = false;
         });
     },
   },
