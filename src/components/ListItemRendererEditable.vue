@@ -6,14 +6,14 @@
           v-model="listItem.item"
           type="text"
           id="inputItem"
-          :placeholder="textPlaceholder"
+          :placeholder="$t(textPlaceholder)"
           :state="itemState"
           autofocus
         />
         <b-form-invalid-feedback id="inputItem" class="p-0 m-0"
-          >Enter at least 3 letters</b-form-invalid-feedback
+          >{{ $t("InputMinLengthMsg") }}</b-form-invalid-feedback
         >
-        <b-form-text id="input-live-help">Item or items split with coma sign.</b-form-text>
+        <b-form-text id="input-live-help">{{ $t("ItemMsg") }}</b-form-text>
       </b-col>
       <b-col class="p-0" style="min-height: 5rem">
         <b-row class="d-flex flex-nowrap">
@@ -24,11 +24,11 @@
               list="categoryList"
               v-bind="$attrs"
               v-on="$listeners"
-              :placeholder="categoryPlaceholder"
+              :placeholder="$t(categoryPlaceholder)"
               :state="categoryState"
             />
             <b-form-invalid-feedback id="inputCategory"
-              >Enter at least 3 letters</b-form-invalid-feedback
+              >{{ $t("InputMinLengthMsg") }}</b-form-invalid-feedback
             >
             <b-form-datalist id="categoryList" :options="categories" />
           </b-col>
@@ -54,11 +54,11 @@
               list="vendorList"
               v-bind="$attrs"
               v-on="$listeners"
-              :placeholder="vendorPlaceholder"
+              :placeholder="$t(vendorPlaceholder)"
               :state="vendorState"
             />
             <b-form-invalid-feedback id="inputVendor"
-              >Enter at least 3 letters</b-form-invalid-feedback
+              >{{ $t("InputMinLengthMsg") }}</b-form-invalid-feedback
             >
             <b-form-datalist id="vendorList" :options="vendors" />
           </b-col>

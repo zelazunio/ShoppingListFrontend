@@ -22,7 +22,7 @@
                 :unchecked-value="false"
                 class="noselect"
               >
-                <span>Pending only</span>
+                <span>{{ $t("Pending only") }}</span>
               </b-form-checkbox>
             </b-col>
             <b-col
@@ -37,7 +37,7 @@
                 :value="categoryFilter"
                 :options="categories"
                 listName="categoryFilter"
-                placeholder="Categories"
+                :placeholder="$t('Categories')"
                 :disabled="listItemsLoading"
                 key="categoryFilter"
                 @input="
@@ -59,7 +59,7 @@
                 :value="vendorFilter"
                 :options="vendors"
                 listName="vendorFilter"
-                placeholder="Vendor"
+                :placeholder="$t('Vendors')"
                 :disabled="listItemsLoading"
                 key="vendorFilter"
                 @input="
@@ -124,7 +124,7 @@
     <b-modal
       id="deleteDoneDialog"
       centered
-      title="Confirm action"
+      :title="$t('Confirm action')"
       header-bg-variant="danger"
       header-text-variant="light"
       hide-header-close
@@ -132,24 +132,23 @@
       no-close-on-esc
     >
       <b-overlay :show="itemsDeletePending" variant="transparent" blur="8px">
-        Do you want to delete <b>{{ doneItemsIdsTable.length }}</b> items marked
-        as <b>done</b>?
+        {{ $t("deleteQuestionPart1") }} <b>{{ doneItemsIdsTable.length }}</b> {{ $t("deleteQuestionPart2") }} <b>{{ $t("deleteQuestionPart3") }}</b> ?
       </b-overlay>
       <template #modal-footer="{ cancel }">
         <b-btn
           variant="primary"
           @click="deleteDoneItems"
           :disabled="itemsDeletePending"
-          >Delete</b-btn
+          >{{ $t("Delete") }}</b-btn
         >
-        <b-btn @click="cancel()" :disabled="itemsDeletePending">Cancel</b-btn>
+        <b-btn @click="cancel()" :disabled="itemsDeletePending">{{ $t("Cancel") }}</b-btn>
       </template>
     </b-modal>
     <!-- Add New Item Dialog -->
     <b-modal
       id="addNewItemDialog"
       centered
-      title="Add new item"
+      :title="$t('Add new item')"
       header-bg-variant="primary"
       header-text-variant="light"
       hide-header-close
