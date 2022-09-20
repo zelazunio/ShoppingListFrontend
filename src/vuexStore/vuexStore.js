@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
-        errors: []
+        errors: [],
+        menuBarVisible: false,
     },
     mutations: {
         addError(state, payload) {
@@ -13,6 +14,9 @@ const store = new Vuex.Store({
         },
         clearErrors(state) {
             state.errors = [];
+        },
+        changeMenuBarVisibility(state) {
+            state.menuBarVisible = !state.menuBarVisible;
         }
     },
     getters: {

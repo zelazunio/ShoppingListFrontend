@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <b-container class="h-100 d-flex justify-content-center p-0">
+      <menu-bar/>
       <b-row
         align-v="center"
         class="
@@ -114,6 +115,17 @@
                     <b-icon-trash></b-icon-trash>
                   </b-btn>
                 </b-col>
+                <b-col></b-col>
+                <b-col class="d-flex justify-content-center">
+                  <b-btn
+                    pill
+                    size="lg"
+                    variant="primary"
+                    @click="$store.commit('changeMenuBarVisibility')"
+                  >
+                    <b-icon-list/>
+                  </b-btn>
+                </b-col>
               </b-row>
             </b-col>
           </b-row>
@@ -132,7 +144,8 @@
       no-close-on-esc
     >
       <b-overlay :show="itemsDeletePending" variant="transparent" blur="8px">
-        {{ $t("deleteQuestionPart1") }} <b>{{ doneItemsIdsTable.length }}</b> {{ $t("deleteQuestionPart2") }} <b>{{ $t("deleteQuestionPart3") }}</b> ?
+        {{ $t("deleteQuestionPart1") }} <b>{{ doneItemsIdsTable.length }}</b>
+        {{ $t("deleteQuestionPart2") }} <b>{{ $t("deleteQuestionPart3") }}</b> ?
       </b-overlay>
       <template #modal-footer="{ cancel }">
         <b-btn
@@ -141,7 +154,9 @@
           :disabled="itemsDeletePending"
           >{{ $t("Delete") }}</b-btn
         >
-        <b-btn @click="cancel()" :disabled="itemsDeletePending">{{ $t("Cancel") }}</b-btn>
+        <b-btn @click="cancel()" :disabled="itemsDeletePending">{{
+          $t("Cancel")
+        }}</b-btn>
       </template>
     </b-modal>
     <!-- Add New Item Dialog -->
@@ -200,6 +215,7 @@ import ListItem from "@/classes/ListItem";
 import ListItemRendererEditable from "./components/ListItemRendererEditable";
 import FilterInput from "@/components/FilterInput.vue";
 import ErrorDialog from "@/components/ErrorDialog.vue";
+import MenuBar from "./components/MenuBar.vue";
 
 export default {
   name: "App",
@@ -208,7 +224,8 @@ export default {
     ListItemRendererEditable,
     FilterInput,
     ErrorDialog,
-  },
+    MenuBar
+},
   data() {
     return {
       listItems: [],
@@ -223,10 +240,17 @@ export default {
       itemPutPending: false,
       itemsDeletePending: false,
       addItemsSaveButtonEnabled: false,
+      menuBarVisibility: false,
     };
   },
   mounted() {
     this.getItems();
+    try {
+      let langMemory = localStorage.getItem("shoppingListJzLocale");
+      if (langMemory) this.setLang(langMemory);
+    } catch {
+      console.debug("Couldn't find and set your language");
+    }
   },
   computed: {
     listItemsFiltered() {
@@ -245,7 +269,7 @@ export default {
               : true;
           return logicalResult;
         })
-        .sort(el => {
+        .sort((el) => {
           let result = 0;
           if (el.done) result = -1;
           else result = 1;
@@ -259,11 +283,11 @@ export default {
           this.listItems
             .map((item) => (item.category ? item.category : null))
             .filter((item) => item)
-            .filter(item=>(item !== this.$t('OtherCategory')))
+            .filter((item) => item !== this.$t("OtherCategory"))
             .sort()
         )
       );
-      result.unshift(this.$t('OtherCategory'))
+      result.unshift(this.$t("OtherCategory"));
       return result;
     },
     vendors() {
@@ -272,11 +296,11 @@ export default {
           this.listItems
             .map((item) => (item.vendor ? item.vendor : null))
             .filter((item) => item)
-            .filter(item=>(item !== this.$t('OtherVendor')))
+            .filter((item) => item !== this.$t("OtherVendor"))
             .sort()
         )
       );
-      result.unshift(this.$t('OtherVendor'))
+      result.unshift(this.$t("OtherVendor"));
       return result;
     },
     doneItemsIdsTable() {
@@ -284,6 +308,7 @@ export default {
     },
   },
   methods: {
+    
     getItems() {
       this.listItemsLoading = true;
       fetch(`${process.env.VUE_APP_API_URL}/items`)
@@ -385,6 +410,7 @@ export default {
           this.itemPutPending = false;
         });
     },
+  
   },
 };
 </script>
