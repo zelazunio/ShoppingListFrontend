@@ -19,7 +19,9 @@ const messages = {
         "deleteQuestionPart2": "items marked as",
         "deleteQuestionPart3": "done",
         "Delete": "Delete",
-        "Cancel": "Cancel"
+        "Cancel": "Cancel",
+        "OtherCategory": "Other",
+        "OtherVendor": "Other"
     },
     'pl': {
         Categories: "Kategorie",
@@ -36,7 +38,9 @@ const messages = {
         "deleteQuestionPart2": "elementów oznaczonych jako",
         "deleteQuestionPart3": "wykonane",
         "Delete": "Usuń",
-        "Cancel": "Anuluj"
+        "Cancel": "Anuluj",
+        "OtherCategory": "Inne",
+        "OtherVendor": "Inny"
     }
 }
 

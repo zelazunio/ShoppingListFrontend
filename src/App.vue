@@ -254,22 +254,30 @@ export default {
       return result;
     },
     categories() {
-      return Array.from(
+      let result = Array.from(
         new Set(
           this.listItems
             .map((item) => (item.category ? item.category : null))
             .filter((item) => item)
+            .filter(item=>(item !== this.$t('OtherCategory')))
+            .sort()
         )
       );
+      result.unshift(this.$t('OtherCategory'))
+      return result;
     },
     vendors() {
-      return Array.from(
+      let result = Array.from(
         new Set(
           this.listItems
             .map((item) => (item.vendor ? item.vendor : null))
             .filter((item) => item)
+            .filter(item=>(item !== this.$t('OtherVendor')))
+            .sort()
         )
       );
+      result.unshift(this.$t('OtherVendor'))
+      return result;
     },
     doneItemsIdsTable() {
       return this.listItems.filter((item) => item.done).map((item) => item._id);
