@@ -19,6 +19,13 @@ export default {
   name: "MenuBar",
   data() {
     return {};
+  },mounted() {
+    try {
+      let langMemory = localStorage.getItem("shoppingListJzLocale");
+      if (langMemory) this.setLang(langMemory);
+    } catch {
+      console.debug("Couldn't find and set your language");
+    }
   },
   methods: {
     setLang(lang) {
