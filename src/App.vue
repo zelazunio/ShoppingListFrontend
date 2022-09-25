@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <b-container class="h-100 d-flex justify-content-center p-0">
-      <menu-bar/>
+      <menu-bar />
       <b-row
         align-v="center"
         class="
@@ -93,52 +93,30 @@
           </b-overlay>
           <b-row>
             <b-col>
-              <b-row>
-                <b-col class="d-flex justify-content-center">
-                  <b-btn
-                    pill
-                    size="lg"
-                    variant="success"
-                    @click="openAddNewItem"
-                  >
-                    <b-icon-plus-circle></b-icon-plus-circle>
-                  </b-btn>
-                </b-col>
-                <b-col></b-col>
-                <b-col class="d-flex justify-content-center">
-                  <b-btn
-                    pill
-                    size="lg"
-                    variant="danger"
-                    @click="openDeleteDoneDialog"
-                    :disabled="deleteButtonDisabled"
-                  >
-                    <b-icon-trash></b-icon-trash>
-                  </b-btn>
-                </b-col>
-                <b-col></b-col>
-                <b-col class="d-flex justify-content-center">
-                  <b-btn
-                    pill
-                    size="lg"
-                    variant="primary"
-                    @click="$store.commit('changeMenuBarVisibility')"
-                  >
-                    <b-icon-list/>
-                  </b-btn>
-                </b-col>
-              </b-row>
+              <buttons
+                :delete-button-disabled="deleteButtonDisabled"
+                @openAddNewItem="openAddNewItem"
+                @openDeleteDoneDialog="openDeleteDoneDialog"
+              />
             </b-col>
           </b-row>
         </b-col>
       </b-row>
     </b-container>
     <!-- Delete Items Dialog -->
-    <delete-items-dialog :done-items-ids-table-length="doneItemsIdsTable.length" :items-delete-pending="itemsDeletePending"
-    @deleteDoneItems="deleteDoneItems"/>
+    <delete-items-dialog
+      :done-items-ids-table-length="doneItemsIdsTable.length"
+      :items-delete-pending="itemsDeletePending"
+      @deleteDoneItems="deleteDoneItems"
+    />
     <!-- Add New Item Dialog -->
-    <add-new-item-dialog :itemPostPending="itemPostPending" :listItem="newItem" :categories="categories" :vendors="vendors"
-    @postItems="postItems"/>
+    <add-new-item-dialog
+      :itemPostPending="itemPostPending"
+      :listItem="newItem"
+      :categories="categories"
+      :vendors="vendors"
+      @postItems="postItems"
+    />
     <!-- Error Dialog -->
     <error-dialog />
   </div>
@@ -152,6 +130,7 @@ import ErrorDialog from "@/components/ErrorDialog.vue";
 import MenuBar from "@/components/MenuBar.vue";
 import DeleteItemsDialog from "@/components/DeleteItemsDialog";
 import AddNewItemDialog from "@/components/AddNewItemDialog";
+import Buttons from "./components/Buttons.vue";
 
 export default {
   name: "App",
@@ -161,8 +140,9 @@ export default {
     ErrorDialog,
     MenuBar,
     DeleteItemsDialog,
-    AddNewItemDialog
-},
+    AddNewItemDialog,
+    Buttons,
+  },
   data() {
     return {
       listItems: [],
@@ -237,11 +217,10 @@ export default {
       return this.listItems.filter((item) => item.done).map((item) => item._id);
     },
     deleteButtonDisabled() {
-      return false && this.doneItemsIdsTable.length == 0
-    }
+      return this.doneItemsIdsTable.length == 0;
+    },
   },
   methods: {
-    
     getItems() {
       this.listItemsLoading = true;
       fetch(`${process.env.VUE_APP_API_URL}/items`)
@@ -343,7 +322,6 @@ export default {
           this.itemPutPending = false;
         });
     },
-  
   },
 };
 </script>

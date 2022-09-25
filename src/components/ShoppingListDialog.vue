@@ -10,7 +10,7 @@
     v-on="$listeners"
   >
   <template #modal-title>
-
+    {{ $t(title) }}
   </template>
     <b-overlay :show="showOverlay" variant="transparent" blur="8px">
       <slot name="dialogBody">Dialog body should go here...</slot>    
