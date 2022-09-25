@@ -72,7 +72,7 @@
             </b-col>
           </b-row>
           <b-overlay
-            :show="listItemsLoading"
+            :show="listItemsLoading || itemPutPending"
             variant="transparent"
             blur="8px"
             class="h-100"
@@ -111,6 +111,7 @@
                     size="lg"
                     variant="danger"
                     @click="openDeleteDoneDialog"
+                    :disabled="deleteButtonDisabled"
                   >
                     <b-icon-trash></b-icon-trash>
                   </b-btn>
@@ -133,78 +134,12 @@
       </b-row>
     </b-container>
     <!-- Delete Items Dialog -->
-    <b-modal
-      id="deleteDoneDialog"
-      centered
-      :title="$t('Confirm action')"
-      header-bg-variant="danger"
-      header-text-variant="light"
-      hide-header-close
-      no-close-on-backdrop
-      no-close-on-esc
-    >
-      <b-overlay :show="itemsDeletePending" variant="transparent" blur="8px">
-        {{ $t("deleteQuestionPart1") }} <b>{{ doneItemsIdsTable.length }}</b>
-        {{ $t("deleteQuestionPart2") }} <b>{{ $t("deleteQuestionPart3") }}</b> ?
-      </b-overlay>
-      <template #modal-footer="{ cancel }">
-        <b-btn
-          variant="primary"
-          @click="deleteDoneItems"
-          :disabled="itemsDeletePending"
-          >{{ $t("Delete") }}</b-btn
-        >
-        <b-btn @click="cancel()" :disabled="itemsDeletePending">{{
-          $t("Cancel")
-        }}</b-btn>
-      </template>
-    </b-modal>
+    <delete-items-dialog :done-items-ids-table-length="doneItemsIdsTable.length" :items-delete-pending="itemsDeletePending"
+    @deleteDoneItems="deleteDoneItems"/>
     <!-- Add New Item Dialog -->
-    <b-modal
-      id="addNewItemDialog"
-      centered
-      :title="$t('Add new item')"
-      header-bg-variant="primary"
-      header-text-variant="light"
-      hide-header-close
-      no-close-on-backdrop
-      no-close-on-esc
-    >
-      <b-row class="p-0">
-        <b-col class="p-0">
-          <b-container fluid class="p-0">
-            <b-overlay :show="itemPostPending" variant="transparent" blur="8px">
-              <b-col>
-                <list-item-renderer-editable
-                  :listItem="newItem"
-                  :categories="categories"
-                  :vendors="vendors"
-                  @formValid="
-                    (valid) => {
-                      addItemsSaveButtonEnabled = valid;
-                    }
-                  "
-                />
-              </b-col>
-            </b-overlay>
-          </b-container>
-        </b-col>
-      </b-row>
-      <template #modal-footer="{ cancel }">
-        <b-btn
-          style="margin-right: 2em"
-          variant="primary"
-          :disabled="!addItemsSaveButtonEnabled"
-          @click.prevent="postItems"
-        >
-          <b-icon-pencil-fill></b-icon-pencil-fill>
-        </b-btn>
-
-        <b-btn @click="cancel()" :disabled="itemPostPending">
-          <b-icon-backspace-fill></b-icon-backspace-fill>
-        </b-btn>
-      </template>
-    </b-modal>
+    <add-new-item-dialog :itemPostPending="itemPostPending" :listItem="newItem" :categories="categories" :vendors="vendors"
+    @postItems="postItems"/>
+    <!-- Error Dialog -->
     <error-dialog />
   </div>
 </template>
@@ -212,19 +147,21 @@
 <script>
 import ListItemRenderer from "./components/ListItemRenderer";
 import ListItem from "@/classes/ListItem";
-import ListItemRendererEditable from "./components/ListItemRendererEditable";
 import FilterInput from "@/components/FilterInput.vue";
 import ErrorDialog from "@/components/ErrorDialog.vue";
-import MenuBar from "./components/MenuBar.vue";
+import MenuBar from "@/components/MenuBar.vue";
+import DeleteItemsDialog from "@/components/DeleteItemsDialog";
+import AddNewItemDialog from "@/components/AddNewItemDialog";
 
 export default {
   name: "App",
   components: {
     ListItemRenderer,
-    ListItemRendererEditable,
     FilterInput,
     ErrorDialog,
-    MenuBar
+    MenuBar,
+    DeleteItemsDialog,
+    AddNewItemDialog
 },
   data() {
     return {
@@ -239,7 +176,6 @@ export default {
       itemPostPending: false,
       itemPutPending: false,
       itemsDeletePending: false,
-      addItemsSaveButtonEnabled: false,
       menuBarVisibility: false,
     };
   },
@@ -300,6 +236,9 @@ export default {
     doneItemsIdsTable() {
       return this.listItems.filter((item) => item.done).map((item) => item._id);
     },
+    deleteButtonDisabled() {
+      return false && this.doneItemsIdsTable.length == 0
+    }
   },
   methods: {
     
