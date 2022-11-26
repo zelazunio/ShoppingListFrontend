@@ -75,10 +75,11 @@
             :show="listItemsLoading || itemPutPending"
             variant="transparent"
             blur="8px"
-            class="h-100"
-            style="overflow-y: auto; overflow-x: hidden"
+            class="h-100 mt-2 mb-2"
+            style="overflow-y: hidden; overflow-x: hidden"
             id="thisOneOverflows"
           >
+          <b-container class="h-100" style="overflow-y: auto; overflow-x: hidden">
             <b-row class="flex-grow-1">
               <b-col>
                 <list-item-renderer
@@ -90,6 +91,7 @@
                 />
               </b-col>
             </b-row>
+          </b-container>
           </b-overlay>
           <b-row>
             <b-col>
